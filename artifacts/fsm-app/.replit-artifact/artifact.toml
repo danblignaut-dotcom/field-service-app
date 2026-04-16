@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Field Service Management"
+version = "1.0.0"
+id = "artifacts/fsm-app"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23793
+
+[services.development]
+run = "pnpm --filter @workspace/fsm-app run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/fsm-app", "run", "build" ]
+publicDir = "artifacts/fsm-app/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23793"
+BASE_PATH = "/"

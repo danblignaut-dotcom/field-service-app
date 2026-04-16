@@ -1,22 +1,37 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Field Service Management API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: tenants
+    description: Tenant operations
+  - name: users
+    description: User operations
+  - name: leads
+    description: Lead operations
+  - name: quotes
+    description: Quote operations
+  - name: jobs
+    description: Job operations
+  - name: completions
+    description: Job completion operations
+  - name: payments
+    description: Payment operations
+  - name: dashboard
+    description: Dashboard summary operations
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +39,765 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /tenants:
+    get:
+      operationId: listTenants
+      tags: [tenants]
+      summary: List all tenants
+      responses:
+        "200":
+          description: List of tenants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tenant"
+    post:
+      operationId: createTenant
+      tags: [tenants]
+      summary: Create a tenant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTenantBody"
+      responses:
+        "201":
+          description: Created tenant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tenant"
+
+  /tenants/{tenantId}:
+    get:
+      operationId: getTenant
+      tags: [tenants]
+      summary: Get a tenant by ID
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Tenant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tenant"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateTenant
+      tags: [tenants]
+      summary: Update a tenant
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTenantBody"
+      responses:
+        "200":
+          description: Updated tenant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tenant"
+
+  /tenants/{tenantId}/users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List users for a tenant
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create a user in a tenant
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserBody"
+      responses:
+        "201":
+          description: Created user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /tenants/{tenantId}/users/{userId}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get a user
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update a user
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserBody"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      summary: Delete a user
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /tenants/{tenantId}/leads:
+    get:
+      operationId: listLeads
+      tags: [leads]
+      summary: List leads for a tenant
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: status
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of leads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lead"
+    post:
+      operationId: createLead
+      tags: [leads]
+      summary: Create a lead
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLeadBody"
+      responses:
+        "201":
+          description: Created lead
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+
+  /tenants/{tenantId}/leads/{leadId}:
+    get:
+      operationId: getLead
+      tags: [leads]
+      summary: Get a lead
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: leadId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lead
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateLead
+      tags: [leads]
+      summary: Update a lead
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: leadId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLeadBody"
+      responses:
+        "200":
+          description: Updated lead
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+    delete:
+      operationId: deleteLead
+      tags: [leads]
+      summary: Delete a lead
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: leadId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /tenants/{tenantId}/leads/{leadId}/convert:
+    post:
+      operationId: convertLeadToJob
+      tags: [leads]
+      summary: Convert a lead to a job
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: leadId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: Created job from lead
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /tenants/{tenantId}/quotes:
+    get:
+      operationId: listQuotes
+      tags: [quotes]
+      summary: List quotes for a tenant
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: status
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of quotes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Quote"
+    post:
+      operationId: createQuote
+      tags: [quotes]
+      summary: Create a quote
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateQuoteBody"
+      responses:
+        "201":
+          description: Created quote
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+
+  /tenants/{tenantId}/quotes/{quoteId}:
+    get:
+      operationId: getQuote
+      tags: [quotes]
+      summary: Get a quote
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: quoteId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Quote
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateQuote
+      tags: [quotes]
+      summary: Update a quote
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: quoteId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateQuoteBody"
+      responses:
+        "200":
+          description: Updated quote
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+    delete:
+      operationId: deleteQuote
+      tags: [quotes]
+      summary: Delete a quote
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: quoteId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /tenants/{tenantId}/quotes/{quoteId}/approve:
+    post:
+      operationId: approveQuote
+      tags: [quotes]
+      summary: Approve a quote
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: quoteId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Approved quote
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+
+  /tenants/{tenantId}/jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List jobs for a tenant
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: status
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: assignedUserId
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+    post:
+      operationId: createJob
+      tags: [jobs]
+      summary: Create a job
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateJobBody"
+      responses:
+        "201":
+          description: Created job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /tenants/{tenantId}/jobs/{jobId}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Get a job
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: jobId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateJob
+      tags: [jobs]
+      summary: Update a job
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: jobId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateJobBody"
+      responses:
+        "200":
+          description: Updated job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+    delete:
+      operationId: deleteJob
+      tags: [jobs]
+      summary: Delete a job
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: jobId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /tenants/{tenantId}/jobs/{jobId}/complete:
+    post:
+      operationId: completeJob
+      tags: [completions]
+      summary: Mark a job as complete with photo and signature
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: jobId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteJobBody"
+      responses:
+        "200":
+          description: Completed job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /tenants/{tenantId}/jobs/{jobId}/assign:
+    patch:
+      operationId: assignJob
+      tags: [jobs]
+      summary: Assign a job to a field staff member
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: jobId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignJobBody"
+      responses:
+        "200":
+          description: Assigned job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /tenants/{tenantId}/dashboard:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get dashboard summary stats for a tenant
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /tenants/{tenantId}/activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Get recent activity feed for a tenant
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Recent activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  /tenants/{tenantId}/payments/initiate:
+    post:
+      operationId: initiatePayment
+      tags: [payments]
+      summary: Initiate a payment for a job (Stripe or Paystack)
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InitiatePaymentBody"
+      responses:
+        "200":
+          description: Payment session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentSession"
+
+  /tenants/{tenantId}/payments/verify:
+    post:
+      operationId: verifyPayment
+      tags: [payments]
+      summary: Verify a payment
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyPaymentBody"
+      responses:
+        "200":
+          description: Payment verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentVerifyResult"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +808,674 @@ components:
       required:
         - status
 
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        currency:
+          type: string
+          description: "ZAR or USD"
+        paymentProvider:
+          type: string
+          description: "paystack or stripe"
+        paystackPublicKey:
+          type: ["string", "null"]
+        stripePublicKey:
+          type: ["string", "null"]
+        logoUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - slug
+        - currency
+        - paymentProvider
+        - paystackPublicKey
+        - stripePublicKey
+        - logoUrl
+        - createdAt
+
+    CreateTenantBody:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        currency:
+          type: string
+        paymentProvider:
+          type: string
+        paystackPublicKey:
+          type: ["string", "null"]
+        stripePublicKey:
+          type: ["string", "null"]
+        logoUrl:
+          type: ["string", "null"]
+      required:
+        - name
+        - slug
+        - currency
+        - paymentProvider
+
+    UpdateTenantBody:
+      type: object
+      properties:
+        name:
+          type: string
+        currency:
+          type: string
+        paymentProvider:
+          type: string
+        paystackPublicKey:
+          type: ["string", "null"]
+        stripePublicKey:
+          type: ["string", "null"]
+        logoUrl:
+          type: ["string", "null"]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          description: "manager, field_staff, or sales"
+        phone:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - tenantId
+        - name
+        - email
+        - role
+        - phone
+        - avatarUrl
+        - createdAt
+
+    CreateUserBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        phone:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+      required:
+        - name
+        - email
+        - role
+
+    UpdateUserBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        phone:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+
+    Lead:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        customerName:
+          type: string
+        customerEmail:
+          type: ["string", "null"]
+        customerPhone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        serviceType:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+          description: "new, contacted, quoted, converted, lost"
+        priority:
+          type: string
+          description: "low, medium, high"
+        assignedUserId:
+          type: ["integer", "null"]
+        estimatedValue:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - tenantId
+        - customerName
+        - customerEmail
+        - customerPhone
+        - address
+        - serviceType
+        - description
+        - status
+        - priority
+        - assignedUserId
+        - estimatedValue
+        - notes
+        - createdAt
+        - updatedAt
+
+    CreateLeadBody:
+      type: object
+      properties:
+        customerName:
+          type: string
+        customerEmail:
+          type: ["string", "null"]
+        customerPhone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        serviceType:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+        priority:
+          type: string
+        assignedUserId:
+          type: ["integer", "null"]
+        estimatedValue:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+      required:
+        - customerName
+        - serviceType
+        - status
+        - priority
+
+    UpdateLeadBody:
+      type: object
+      properties:
+        customerName:
+          type: string
+        customerEmail:
+          type: ["string", "null"]
+        customerPhone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        serviceType:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+        priority:
+          type: string
+        assignedUserId:
+          type: ["integer", "null"]
+        estimatedValue:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+
+    QuoteLineItem:
+      type: object
+      properties:
+        description:
+          type: string
+        quantity:
+          type: number
+        unitPrice:
+          type: number
+        total:
+          type: number
+      required:
+        - description
+        - quantity
+        - unitPrice
+        - total
+
+    Quote:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        leadId:
+          type: ["integer", "null"]
+        jobId:
+          type: ["integer", "null"]
+        customerName:
+          type: string
+        customerEmail:
+          type: ["string", "null"]
+        customerPhone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        lineItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuoteLineItem"
+        subtotal:
+          type: number
+        taxRate:
+          type: number
+        taxAmount:
+          type: number
+        total:
+          type: number
+        status:
+          type: string
+          description: "draft, sent, approved, rejected, expired"
+        validUntil:
+          type: ["string", "null"]
+          format: date-time
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - tenantId
+        - leadId
+        - jobId
+        - customerName
+        - customerEmail
+        - customerPhone
+        - address
+        - lineItems
+        - subtotal
+        - taxRate
+        - taxAmount
+        - total
+        - status
+        - validUntil
+        - notes
+        - createdAt
+        - updatedAt
+
+    CreateQuoteBody:
+      type: object
+      properties:
+        leadId:
+          type: ["integer", "null"]
+        jobId:
+          type: ["integer", "null"]
+        customerName:
+          type: string
+        customerEmail:
+          type: ["string", "null"]
+        customerPhone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        lineItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuoteLineItem"
+        taxRate:
+          type: number
+        validUntil:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+      required:
+        - customerName
+        - lineItems
+        - taxRate
+
+    UpdateQuoteBody:
+      type: object
+      properties:
+        customerName:
+          type: string
+        customerEmail:
+          type: ["string", "null"]
+        customerPhone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        lineItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuoteLineItem"
+        taxRate:
+          type: number
+        status:
+          type: string
+        validUntil:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+
+    Job:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        leadId:
+          type: ["integer", "null"]
+        quoteId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        customerName:
+          type: string
+        customerEmail:
+          type: ["string", "null"]
+        customerPhone:
+          type: ["string", "null"]
+        address:
+          type: string
+        serviceType:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+          description: "scheduled, in_progress, completed, cancelled"
+        priority:
+          type: string
+          description: "low, medium, high, urgent"
+        assignedUserId:
+          type: ["integer", "null"]
+        scheduledAt:
+          type: ["string", "null"]
+          format: date-time
+        completedAt:
+          type: ["string", "null"]
+          format: date-time
+        completionPhotoUrl:
+          type: ["string", "null"]
+        completionSignatureUrl:
+          type: ["string", "null"]
+        completionNotes:
+          type: ["string", "null"]
+        paymentStatus:
+          type: string
+          description: "unpaid, pending, paid"
+        totalAmount:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - tenantId
+        - leadId
+        - quoteId
+        - title
+        - customerName
+        - customerEmail
+        - customerPhone
+        - address
+        - serviceType
+        - description
+        - status
+        - priority
+        - assignedUserId
+        - scheduledAt
+        - completedAt
+        - completionPhotoUrl
+        - completionSignatureUrl
+        - completionNotes
+        - paymentStatus
+        - totalAmount
+        - createdAt
+        - updatedAt
+
+    CreateJobBody:
+      type: object
+      properties:
+        leadId:
+          type: ["integer", "null"]
+        quoteId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        customerName:
+          type: string
+        customerEmail:
+          type: ["string", "null"]
+        customerPhone:
+          type: ["string", "null"]
+        address:
+          type: string
+        serviceType:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+        priority:
+          type: string
+        assignedUserId:
+          type: ["integer", "null"]
+        scheduledAt:
+          type: ["string", "null"]
+        totalAmount:
+          type: ["number", "null"]
+      required:
+        - title
+        - customerName
+        - address
+        - serviceType
+        - status
+        - priority
+
+    UpdateJobBody:
+      type: object
+      properties:
+        title:
+          type: string
+        customerName:
+          type: string
+        customerEmail:
+          type: ["string", "null"]
+        customerPhone:
+          type: ["string", "null"]
+        address:
+          type: string
+        serviceType:
+          type: string
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+        priority:
+          type: string
+        assignedUserId:
+          type: ["integer", "null"]
+        scheduledAt:
+          type: ["string", "null"]
+        totalAmount:
+          type: ["number", "null"]
+
+    AssignJobBody:
+      type: object
+      properties:
+        assignedUserId:
+          type: integer
+      required:
+        - assignedUserId
+
+    CompleteJobBody:
+      type: object
+      properties:
+        completionPhotoUrl:
+          type: ["string", "null"]
+        completionSignatureUrl:
+          type: ["string", "null"]
+        completionNotes:
+          type: ["string", "null"]
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalLeads:
+          type: integer
+        openLeads:
+          type: integer
+        totalJobs:
+          type: integer
+        activeJobs:
+          type: integer
+        completedJobs:
+          type: integer
+        totalRevenue:
+          type: number
+        pendingRevenue:
+          type: number
+        totalQuotes:
+          type: integer
+        pendingQuotes:
+          type: integer
+        conversionRate:
+          type: number
+      required:
+        - totalLeads
+        - openLeads
+        - totalJobs
+        - activeJobs
+        - completedJobs
+        - totalRevenue
+        - pendingRevenue
+        - totalQuotes
+        - pendingQuotes
+        - conversionRate
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          description: "lead_created, job_updated, quote_sent, job_completed, payment_received"
+        description:
+          type: string
+        entityId:
+          type: integer
+        entityType:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - description
+        - entityId
+        - entityType
+        - createdAt
+
+    InitiatePaymentBody:
+      type: object
+      properties:
+        jobId:
+          type: integer
+        amount:
+          type: number
+        customerEmail:
+          type: string
+        customerName:
+          type: string
+      required:
+        - jobId
+        - amount
+        - customerEmail
+        - customerName
+
+    PaymentSession:
+      type: object
+      properties:
+        provider:
+          type: string
+        checkoutUrl:
+          type: ["string", "null"]
+        reference:
+          type: string
+        clientSecret:
+          type: ["string", "null"]
+      required:
+        - provider
+        - checkoutUrl
+        - reference
+        - clientSecret
+
+    VerifyPaymentBody:
+      type: object
+      properties:
+        jobId:
+          type: integer
+        reference:
+          type: string
+        provider:
+          type: string
+      required:
+        - jobId
+        - reference
+        - provider
+
+    PaymentVerifyResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        status:
+          type: string
+        jobId:
+          type: integer
+      required:
+        - success
+        - status
+        - jobId
